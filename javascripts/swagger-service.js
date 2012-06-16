@@ -38,6 +38,10 @@ function SwaggerService(baseUrl, _apiKey, statusCallback) {
   this.ApiResource = function() {
     return ApiResource;
   };
+	
+  this.Api = function() {
+    return Api;
+  };
 
   this.apiHost = function() {
     return apiHost;
@@ -78,7 +82,7 @@ function SwaggerService(baseUrl, _apiKey, statusCallback) {
   ApiResource.extend({
   	filter : function(item, query) {
   		if (query != null || query!="") {
-			if (item.name.indexOf(query) == 0)
+			if (item.name.indexOf(query) > -1)
 				return item;
 			else return null;
   		} else {
@@ -152,6 +156,18 @@ function SwaggerService(baseUrl, _apiKey, statusCallback) {
       return this.path_json + "- " + this.operations.all().length + " operations: " + opsString;
     }
 
+  });
+  
+  Api.extend({
+  	filter : function(item, query) {
+  		if (query != null || query!="") {
+			if (item.name.indexOf(query) > -1)
+				return item;
+			else return null;
+  		} else {
+  			return item;
+  		}
+  	}
   });
 
   // Model: ApiOperation
