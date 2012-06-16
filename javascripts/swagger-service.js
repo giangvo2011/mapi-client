@@ -10,11 +10,8 @@ function SwaggerService(baseUrl, _apiKey, statusCallback) {
   if (! (baseUrl.toLowerCase().indexOf("http:") == 0 || baseUrl.toLowerCase().indexOf("https:") == 0)) {
     baseUrl = ("http://" + baseUrl);
   }
-  baseUrl = baseUrl + "/resources.json";
-  // log("using base url " + baseUrl);
-  var apiHost = baseUrl.substr(0, baseUrl.lastIndexOf("/"));
-  var rootResourcesApiName = baseUrl.substr(baseUrl.lastIndexOf("/") + 1, (baseUrl.lastIndexOf(".") - baseUrl.lastIndexOf("/") - 1));
-  var formatString = "";
+
+  var apiHost = baseUrl
   var statusListener = statusCallback;
   var apiKey = _apiKey;
 
@@ -24,10 +21,7 @@ function SwaggerService(baseUrl, _apiKey, statusCallback) {
     if (apiKey.length > 0)
     apiKeySuffix = "?api_key=" + apiKey;
   }
-  // log("apiHost=" + apiHost);
-  // log("apiKey=" + apiKey);
-  // log("rootResourcesApiName = " + rootResourcesApiName);
-  // utility functions
+  
   function log(m) {
     if (window.console) console.log(m);
   }
@@ -49,28 +43,22 @@ function SwaggerService(baseUrl, _apiKey, statusCallback) {
     return apiHost;
   };
 
-  this.formatString = function() {
-    return formatString;
-  };
-
   // Model: ApiResource
-  var ApiResource = Spine.Model.setup("ApiResource", ["fetch_url","name", "baseUrl", "path", "path_json", "path_xml", "description", "apiLists", "modelList"]);
+  var ApiResource = Spine.Model.setup("ApiResource", ["fetch_url","name", "baseUrl", "path", "description", "apiLists", "modelList"]);
 //  ApiResource.extend(Spine.Model.Filter);
 //  ApiResource.selectAttributes = ["name"];
   ApiResource.include({
-    path_json: null,
-    path_xml: null,
-
     init: function(atts) {
       if (atts) this.load(atts);
-      this.path_json = this.path.replace("{format}", "json");
-      this.path_xml = this.path.replace("{format}", "xml");
+      
       this.baseUrl = apiHost;
+      this.fetch_url = this.baseUrl +this.path + "/list_api" + apiKeySuffix;
+      
       //execluded 9 letters to remove .{format} from name
-      this.name = this.path.substr(1, this.path.length - formatString.length - 1);
+      this.name = this.path.substr(1, this.path.length - 1);
       this.apiList = Api.sub();
       this.modelList = ApiModel.sub();
-      this.fetch_url = this.baseUrl +this.path + "/list_api" + apiKeySuffix;
+      
     },
 
     addApis: function(apiObjects) {
@@ -83,7 +71,7 @@ function SwaggerService(baseUrl, _apiKey, statusCallback) {
     },
 
     toString: function() {
-      return this.path_json + ": " + this.description;
+      return this.name + ": " + this.description;
     }
   });
   
@@ -100,7 +88,7 @@ function SwaggerService(baseUrl, _apiKey, statusCallback) {
   });
   
   // Model: Api
-  var Api = Spine.Model.setup("Api", ["baseUrl", "path", "path_json", "path_xml", "name", "description", "operations", "path_json", "path_xml"]);
+  var Api = Spine.Model.setup("Api", ["baseUrl", "path", "name", "description", "operations"]);
   Api.include({
     init: function(atts) {
       if (atts) this.load(atts);
@@ -116,18 +104,18 @@ function SwaggerService(baseUrl, _apiKey, statusCallback) {
         this.path_xml = prefix.replace("{format}", "xml") + suffix;;
 
         if (this.path.indexOf("/") == 0) {
-          this.name = this.path.substr(1, secondPathSeperatorIndex - formatString.length - 1);
+          this.name = this.path.substr(1, secondPathSeperatorIndex - 1);
         } else {
-          this.name = this.path.substr(0, secondPathSeperatorIndex - formatString.length - 1);
+          this.name = this.path.substr(0, secondPathSeperatorIndex - 1);
         }
       } else {
         this.path_json = this.path.replace("{format}", "");
         this.path_xml = this.path.replace("{format}", "xml");
 
         if (this.path.indexOf("/") == 0) {
-          this.name = this.path.substr(1, this.path.length - formatString.length - 1);
+          this.name = this.path.substr(1, this.path.length - 1);
         } else {
-          this.name = this.path.substr(0, this.path.length - formatString.length - 1);
+          this.name = this.path.substr(0, this.path.length - 1);
         }
       }
 
@@ -167,7 +155,7 @@ function SwaggerService(baseUrl, _apiKey, statusCallback) {
   });
 
   // Model: ApiOperation
-  var ApiOperation = Spine.Model.setup("ApiOperation", ["baseUrl", "resPath", "path", "path_json", "path_xml", "summary", "notes", "deprecated", "open", "httpMethod", "httpMethodLowercase", "nickname", "responseClass", "parameters", "apiName"]);
+  var ApiOperation = Spine.Model.setup("ApiOperation", ["baseUrl", "resPath", "path", "summary", "notes", "deprecated", "open", "httpMethod", "httpMethodLowercase", "nickname", "responseClass", "parameters", "apiName"]);
   ApiOperation.include({
     init: function(atts) {
       if (atts) this.load(atts);
@@ -369,13 +357,13 @@ function SwaggerService(baseUrl, _apiKey, statusCallback) {
       var controller = this;
 
       updateStatus("Fetching API List...");
-      $.getJSON(apiHost + "/" + rootResourcesApiName + ".json" + apiKeySuffix,
+      $.getJSON(apiHost + "/" + "resources.json" + apiKeySuffix,
       function(response) {
         //log(response);
         ApiResource.createAll(response.apis);
 
         // get rid of the root resource list api since we're not going to document that
-        var obj = ApiResource.findByAttribute("name", rootResourcesApiName);
+        var obj = ApiResource.findByAttribute("name", "resources");
         if (obj)
         obj.destroy();
 
