@@ -59,6 +59,7 @@ jQuery(function($) {
     showApi: function() {
       var baseUrl = jQuery.trim($("#input_baseUrl").val());
       var apiKey = jQuery.trim($("#input_apiKey").val());
+      var query =  $("#filter").val();
       if (baseUrl.length == 0) {
         $("#input_baseUrl").wiggle();
       } else {
@@ -70,7 +71,8 @@ jQuery(function($) {
         }
         var resourceListController = ResourceListController.init({
           baseUrl: baseUrl,
-          apiKey: apiKey
+          apiKey: apiKey,
+          query: query
         });
       }
     }
@@ -146,7 +148,9 @@ jQuery(function($) {
     addOne: function(apiResource) {
       ResourceController.init({
         item: apiResource,
-        container: "#resources"
+        container: "#resources",
+        query: this.query,
+        apirsc: this.ApiResource
       });
     }
   });
@@ -160,16 +164,17 @@ jQuery(function($) {
     modelList: null,
 
     init: function() {
-      this.render();
-
-      this.apiResource = this.item;
-      this.apiList = this.apiResource.apiList;
-      this.modelList = this.apiResource.modelList;
-
-      // log("------------- apiResource : " + this.apiResource.name);
-      // this.apiList.logAll();
-      // this.modelList.logAll();
-      this.apiList.each(this.renderApi);
+      this.apiResource = this.apirsc.filter(this.item,this.query);
+      if (this.apiResource != null) {
+      	  this.render();
+	      this.apiList = this.apiResource.apiList;
+	      this.modelList = this.apiResource.modelList;
+	
+	      // log("------------- apiResource : " + this.apiResource.name);
+	      // this.apiList.logAll();
+	      // this.modelList.logAll();
+	      this.apiList.each(this.renderApi);
+	     }
     },
 
     render: function() {

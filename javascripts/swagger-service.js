@@ -55,6 +55,8 @@ function SwaggerService(baseUrl, _apiKey, statusCallback) {
 
   // Model: ApiResource
   var ApiResource = Spine.Model.setup("ApiResource", ["fetch_url","name", "baseUrl", "path", "path_json", "path_xml", "description", "apiLists", "modelList"]);
+//  ApiResource.extend(Spine.Model.Filter);
+//  ApiResource.selectAttributes = ["name"];
   ApiResource.include({
     path_json: null,
     path_xml: null,
@@ -72,7 +74,8 @@ function SwaggerService(baseUrl, _apiKey, statusCallback) {
     },
 
     addApis: function(apiObjects) {
-      this.apiList.createAll(apiObjects);
+      if (apiObjects != null)
+    	  this.apiList.createAll(apiObjects);
     },
 
     addModel: function(modelObject) {
@@ -83,7 +86,19 @@ function SwaggerService(baseUrl, _apiKey, statusCallback) {
       return this.path_json + ": " + this.description;
     }
   });
-
+  
+  ApiResource.extend({
+  	filter : function(item, query) {
+  		if (query != null || query!="") {
+			if (item.name.indexOf(query) == 0)
+				return item;
+			else return null;
+  		} else {
+  			return item;
+  		}
+  	}
+  });
+  
   // Model: Api
   var Api = Spine.Model.setup("Api", ["baseUrl", "path", "path_json", "path_xml", "name", "description", "operations", "path_json", "path_xml"]);
   Api.include({
