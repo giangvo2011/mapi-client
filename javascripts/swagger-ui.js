@@ -105,7 +105,7 @@ jQuery(function($) {
     proxied: ["addAll", "addOne"],
 
     ApiResource: null,
-
+	Api : null,
     init: function() {
       if (this.baseUrl == null) {
         throw new Error("A baseUrl must be passed to ResourceListController");
@@ -132,6 +132,9 @@ jQuery(function($) {
       this.ApiResource = swaggerService.ApiResource();
 
       this.ApiResource.bind("refresh", this.addAll);
+      
+      this.Api = swaggerService.Api();
+      
     },
 
     addAll: function() {
@@ -150,7 +153,7 @@ jQuery(function($) {
         item: apiResource,
         container: "#resources",
         query: this.query,
-        apirsc: this.ApiResource
+        Api: this.Api
       });
     }
   });
@@ -162,19 +165,13 @@ jQuery(function($) {
     apiResource: null,
     apiList: null,
     modelList: null,
-
+	flag : false,
     init: function() {
-      this.apiResource = this.apirsc.filter(this.item,this.query);
-      if (this.apiResource != null) {
-      	  this.render();
-	      this.apiList = this.apiResource.apiList;
-	      this.modelList = this.apiResource.modelList;
-	
-	      // log("------------- apiResource : " + this.apiResource.name);
-	      // this.apiList.logAll();
-	      // this.modelList.logAll();
-	      this.apiList.each(this.renderApi);
-	     }
+      this.apiResource = this.item;
+//    this.render();
+	  this.apiList = this.apiResource.apiList;
+	  this.modelList = this.apiResource.modelList;
+	  this.apiList.each(this.renderApi);
     },
 
     render: function() {
@@ -182,11 +179,17 @@ jQuery(function($) {
     },
 
     renderApi: function(api) {
-      var resourceApisContainer = "#" + this.apiResource.name + "_endpoint_list";
-      ApiController.init({
-        item: api,
-        container: resourceApisContainer
-      });
+      if (this.Api.filter(api, this.query)) {
+	  		if (!this.flag) {
+	  			this.render();
+	  			this.flag = true;
+	  		}
+	  		var resourceApisContainer = "#" + this.apiResource.name + "_endpoint_list";
+		    ApiController.init({
+		        item: api,
+		        container: resourceApisContainer
+		    });
+	  }
 
     }
 
