@@ -329,7 +329,7 @@ body {
     body p#colophon a {
       text-decoration: none;
       color: #547f00; }
-  body ul#resources {
+  body ul#resources , ul#resourcesCase{
     padding: 0 15px;
     font-family: "Droid Sans", sans-serif;
     font-size: 0.9em; }

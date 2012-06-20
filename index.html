@@ -13,8 +13,19 @@
     <script src='javascripts/app.js' type='text/javascript'></script>
     <script src='javascripts/swagger-service.js' type='text/javascript'></script>
     <script src='javascripts/swagger-ui.js' type='text/javascript'></script>
+        <link href='stylesheets/thickbox.css' media='screen' rel='stylesheet' type='text/css' />
+     <script src='javascripts/jquery.js' type='text/javascript'></script>
+    <script src='javascripts/thickbox.js' type='text/javascript'></script>
   </head>
   <body>
+  
+   	<input name="addNew" class="thickbox" type="button" value="Add New" title="add a caption to title attribute / or leave blank" alt="#TB_inline?height=600&width=1040&inlineId=myOnPageContent">
+   	
+   	
+   	<div id="myOnPageContent">
+   	
+  
+  
     <form id='api_selector'>
       <div class='input'><input placeholder="http://api.sgcharo.com/mobion" id="input_baseUrl" name="baseUrl" type="text" value=/></div>
       <div class='input'><input placeholder="token" id="input_apiKey" name="apiKey" type="text"/></div>
@@ -159,5 +170,8 @@
       Sexy API documentation from
       <a href="http://mobion.com">Mobion Core team</a>.
     </p>
+    
+    
+    </div>
   </body>
 </html>
