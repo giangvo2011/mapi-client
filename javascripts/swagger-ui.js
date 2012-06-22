@@ -7,6 +7,13 @@ jQuery(function($) {
     proxied: ["showApi"],
 
     baseUrlList: new Array(),
+    supportsLocalStorage: function() {
+        try {
+          return 'localStorage' in window && window['localStorage'] !== null;
+        } catch(e) {
+          return false;
+        }
+      },
 
     init: function() {
       if (this.supportsLocalStorage()) {
@@ -48,14 +55,7 @@ jQuery(function($) {
       this.showApi();
     },
 
-    supportsLocalStorage: function() {
-      try {
-        return 'localStorage' in window && window['localStorage'] !== null;
-      } catch(e) {
-        return false;
-      }
-    },
-
+  
     showApi: function() {
       var baseUrl = jQuery.trim($("#input_baseUrl").val());
       var apiKey = jQuery.trim($("#input_apiKey").val());
@@ -387,5 +387,12 @@ jQuery(function($) {
     apiSelectionController.slapOn();
   }
 
+  
+  
+  
+  
+  
+  
+  
 });
 

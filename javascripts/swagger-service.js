@@ -358,6 +358,7 @@ function SwaggerService(baseUrl, _apiKey, statusCallback) {
 
   });
 
+  
   // Controller
   var ModelController = Spine.Controller.create({
     countLoaded: 0,
@@ -434,6 +435,104 @@ function SwaggerService(baseUrl, _apiKey, statusCallback) {
 
   });
 
+  
+
+  var ApiTestCase = Spine.Model.setup("ApiTestCase", ["name", "apiList"]);
+  ApiTestCase.include({
+  	inint : function(atts){
+  		if(atts) this.load(atts);
+  		this.name = testcaseName;
+  		this.apiList = Api.sub();
+  	},
+
+  	addApi : function(apiItem){
+  		if(apiItem != null){
+  			this.apiList.create(apiItem);
+  		}
+  	},
+  	
+  	addApis : function(listApis){
+  		if(listApis != null){
+  			this.apiList = listApis;
+  		}
+  	},
+  	
+  	destroyAllApi : function(){
+  		this.apiList = null;
+  	}
+  });
+
+  SwaggerService.TestCase = function(){
+  	ApiTestCaseController.init();
+  	return ApiTestCase;
+  }
+
+
+  var ApiTestCaseController = Spine.Controller.create({
+  	
+  	proxied : ["loadTestCaseList", "addTestCase", "getListApiByTestCase"],
+  	
+  	init : function(){
+  		this.loadTestCaseList();
+  	},
+  	
+  	getListApiByTestCase : function(testCaseItem){
+  		if(testCaseItem != null){
+  			$.getJSON("get list api by testcase",
+  				function(res){
+  					testCaseItem.apiList = res.apiList;
+  				}
+  			);
+  		}
+  		
+  	},
+  	
+  	loadTestCaseList : function(){
+  		var controller = this;
+  		$.getJSON("http://localhost/mobion/real/list_test_case/d5823180aafe11e19912005056a70023", 
+  			function(res){
+  				ApiTestCase.createAll(res.testCases);
+  				controller.fecthList();
+  			}
+  		);
+  		ApiTestCase.trigger("refresh");
+  	},
+  	
+  	
+  	fetchList : function(){
+  		var testCaseList = ApiTestCase.all();
+  		for(var i = 0;i < testCaseList.length; i++){
+  			var testCaseItem = testCaseList[i];
+  			this.getListApiByTestCase(testCaseItem);
+  		}
+  	},
+  	
+  	addTestCase : function(testCaseItem){
+  		$.postJSON("add testcase",
+  			function(res){
+  				ApiTestCase.create(testCaseItem);
+  			}
+  		);
+  	},
+  	
+  	addApiItem : function(apiItem, apiTestCase){
+  		$.postJSON("add api item",
+  			function(){
+  				apiTestCase.addApi(apiItem);
+  			}
+  		);
+  	},
+  	
+  	removeApiTestCase : function(id){
+  		var testCaseItem = ApiTestCase.find(id);
+  		if(testCaseItem != null){
+  			testCaseItem.destroy();
+  		}
+  	}
+  });
+
+
+  
   this.init = function() {
     this.modelController = ModelController.init();
   };
